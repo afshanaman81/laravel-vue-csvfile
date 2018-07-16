@@ -19,13 +19,5 @@ Route::post('file', function(Request $request){
 	$file = $request->file('myFile')->store('csvfiles');
 	$path = $request->file('myFile')->getRealPath();
 	$csv_data = array_map('str_getcsv', file($path));
-	
-	//return back();
-	//return back()->with(['csv_data' => $csv_data]);
-	//return back()->with(compact('csv_data'));
-   	//return view('import_fields', compact('csv_data'));
-   	//return view('welcome', json_encode($csv_data));
-   	return view('welcome', compact('csv_data'));
-   	//return response()->json($csv_data);
-   	//dd($csv_data);
+	return view('welcome', compact('csv_data'));
 });
