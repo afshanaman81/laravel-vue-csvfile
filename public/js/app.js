@@ -44343,6 +44343,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -44410,6 +44411,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             //console.log(this.NumericColumns)
         },
         addNewColumn: function addNewColumn() {
+            this.newColumn = this.newColumn.replace(/\s/g, "");
             // error handling
             // 1. Column Name Check            
             if (this.newColumn === '') {
@@ -44427,8 +44429,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
             // Evaluate the formula
             if (this.formula.columnOne !== '') {
+                // 3. Empty formula Check
+                if (this.formula.columnOne === '') {
+                    this.$toastr.i("No Formula Provided");
+                    return;
+                }
                 this.validEvaluation = this.evalStructured();
             } else {
+                // 3. Empty formula Check
+                if (this.formula.unStructured === '') {
+                    this.$toastr.i("No Formula Provided");
+                    return;
+                }
                 this.validEvaluation = this.evalUnstructured();
             }
 
@@ -44628,7 +44640,7 @@ var render = function() {
         _vm._v(" "),
         _c("div", { staticClass: "form-group text-left" }, [
           _c("label", { attrs: { for: "column" } }, [
-            _vm._v("New Column Name")
+            _vm._v("New Column Name ")
           ]),
           _vm._v(" "),
           _c("input", {
@@ -44651,7 +44663,11 @@ var render = function() {
                 _vm.newColumn = $event.target.value
               }
             }
-          })
+          }),
+          _vm._v(" "),
+          _c("pre", [
+            _vm._v("(Spaces not allowed, and will be trimmed if typed)")
+          ])
         ]),
         _vm._v(" "),
         _c("div", { staticClass: "form-group text-left" }, [

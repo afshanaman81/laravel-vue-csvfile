@@ -40,9 +40,10 @@
                 <hr />
                 <h3>Add New column</h3> 
                 <div class="form-group text-left">
-                    <label for="column">New Column Name</label>
+                    <label for="column">New Column Name </label>
                     <input type="text" id="column" class="form-control"
                             v-model="newColumn">
+                    <pre>(Spaces not allowed, and will be trimmed if typed)</pre>
                 </div>
 
                 <div class="form-group text-left">
@@ -170,27 +171,38 @@
                 })
                 //console.log(this.NumericColumns)
             },
-            addNewColumn: function(){              
+            addNewColumn: function(){   
+                this.newColumn = this.newColumn.replace(/\s/g, "")                
                 // error handling
                 // 1. Column Name Check            
                 if (this.newColumn === ''){
                     this.validEvaluation = false
-                    this.$toastr.e("Must provide name for new column"); 
+                    this.$toastr.e("Must provide name for new column")
                     return
                 }
                 
                 // 2. Column Duplicate Name Check                
                 if (this.headerData.includes(this.newColumn.toLowerCase())){                    
-                    this.$toastr.i("Column Already Exists"); 
+                    this.$toastr.i("Column Already Exists") 
                     this.validEvaluation = false
                     return
-                }
+                }            
             
                 // Evaluate the formula
-                if (this.formula.columnOne !== ''){                   
+                if (this.formula.columnOne !== ''){  
+                    // 3. Empty formula Check
+                    if (this.formula.columnOne === ''){
+                        this.$toastr.i("No Formula Provided")
+                        return 
+                    }                 
                     this.validEvaluation = this.evalStructured()
                 }
                 else{
+                    // 3. Empty formula Check
+                    if (this.formula.unStructured === ''){
+                        this.$toastr.i("No Formula Provided")
+                        return 
+                    }
                     this.validEvaluation = this.evalUnstructured()
                 }
 
@@ -203,7 +215,7 @@
                     if (!this.headerData.includes(this.newColumn))
                         this.headerData.push(this.newColumn.toLowerCase())
                     else{
-                        this.$toastr.i("Column Already Exists");                
+                        this.$toastr.i("Column Already Exists")              
                     }
                 }
 
@@ -265,7 +277,7 @@
                     unStructured:''
                 }
                 this.newColumn = ''
-            },
+            },            
             sort:function(s) {
                 //toggle search
                 if(s === this.currentSort) {

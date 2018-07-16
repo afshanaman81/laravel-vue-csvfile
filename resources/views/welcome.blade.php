@@ -18,7 +18,7 @@
                 font-family: 'Raleway', sans-serif;
                 font-weight: 100;
                 height: 100vh;   
-                width: 60vw;             
+                width: 50vw;             
                 margin: 0 auto;
             }
 
