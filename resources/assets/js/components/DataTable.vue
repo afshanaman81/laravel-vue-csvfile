@@ -2,6 +2,7 @@
     <div id="view-data" class="container" >
         <div class="row">
             <div class="col-md-12">
+
                 <br>
                 <table class="table table-striped text-left">
                     <thead>
@@ -34,7 +35,9 @@
         </div>
 
         <div class="row">
-            <div class="col-md-12">  
+
+            <div class="col-md-12"> 
+                <hr />
                 <h3>Add New column</h3> 
                 <div class="form-group text-left">
                     <label for="column">New Column Name</label>
@@ -44,14 +47,16 @@
 
                 <div class="form-group text-left">
                     <div class="row form-group">
-                        <div class="col-md-12">Formula</div>
+                        <div class="col-md-12">Structured Formula</div>
                     </div>
                     <div class="row form-group">
                         <div class="col-md-5">
                             <label for="column-one">Column 1</label>
                             <select id="column-one" class="form-control"
-                                v-model="formula.columnOne">
-                                <option v-for="column in colTypes" 
+                                v-model="formula.columnOne" 
+                                :disabled="formula.unStructured !== ''">
+                                <option value=""></option>
+                                <option v-for="column in NumericColumns" 
                                     :value="column" >{{ column }}</option>
                             </select>
                         </div>
@@ -59,7 +64,8 @@
                         <div class="col-md-2">
                             <label for="operator">Operator</label>                        
                             <select id="operator" class="form-control"
-                                v-model="formula.operator">
+                                v-model="formula.operator" 
+                                :disabled="formula.unStructured !== ''">
                                 <option v-for="op in operators" 
                                     :value="op" >{{ op }}</option>
                             </select>
@@ -68,17 +74,35 @@
                         <div class="col-md-5">
                             <label for="column-two">Column 2</label>
                             <select id="column-two" class="form-control"
-                                v-model="formula.columnTwo">
-                                <option v-for="column in colTypes" 
+                                v-model="formula.columnTwo" 
+                                :disabled="formula.unStructured !== ''">
+                                <option value=""></option>
+                                <option v-for="column in NumericColumns" 
                                     :value="column" >{{ column }}</option>
                             </select>
                         </div>
                     </div>
                 </div> 
+
+                <div class="form-group text-left">
+                    <div class="row form-group">
+                        <div class="col-md-12">Un-structured Formula</div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-12">
+                            <label for="column-unstructured">Statement</label>
+                            <input type="text" id="column-unstructured" class="form-control"
+                                :disabled="formula.columnOne !== ''" 
+                                v-model="formula.unStructured">
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="form-group text-center">
                     <input v-on:click="addNewColumn" value="Add" 
                             class="btn btn-warning uniform-width">
+                    <input v-on:click="clearForm" value="Clear Form" 
+                            class="btn btn-success uniform-width">
                 </div>            
             </div>            
         </div>
@@ -98,25 +122,28 @@
                 currentPage:1,
                 headerData: [],
                 bodyData:[],
-                colTypes:[],
+                NumericColumns:[],
                 operators: ['+', '*', '-', '/'],
-                newColumn: '',
+                newColumn: 'Ss',
                 formula: {
                     columnOne: '',
                     columnTwo: '',
-                    operator: ''
+                    operator: '',
+                    unStructured:'product & " sales in " & city & " were " & sales'
                 },
             }
         },
         mounted() {
             console.log('Component mounted.')
             this.parseData()   
-            this.getTypesOfColumns()     
+            this.getNumericColumns()     
             this.getPageInfo()
         },
         methods:{
             parseData: function(){
-                this.headerData = this.data[0]
+                this.headerData = this.data[0].map(element =>{
+                    return element.toLowerCase()
+                })
                
                 this.data.forEach((row, rowIndex) =>{
                     //console.log(row)
@@ -132,31 +159,81 @@
                 })
                 //console.log(this.bodyData)
             },
-            getTypesOfColumns: function(){
+            getNumericColumns: function(){
                 let row = this.data[1]
                 row.forEach((cell, index) =>{            
                     //console.log([cell, typeof(cell)])  
                     if (cell == Number(cell)){
                         //console.log(`${cell} is a number`)
-                        this.colTypes.push(this.headerData[index])
+                        this.NumericColumns.push(this.headerData[index])
                     }
                 })
-                //console.log(this.colTypes)
+                //console.log(this.NumericColumns)
             },
             addNewColumn: function(){
+                // error handling
+                // 1. Column Name Check            
+                if (this.newColumn === ''){
+                    this.$toastr.e("Must provide name for new column"); 
+                    return
+                }
+                // 2. Column Duplicate Name Check
                 if (!this.headerData.includes(this.newColumn))
-                    this.headerData.push(this.newColumn)
+                    this.headerData.push(this.newColumn.toLowerCase())
                 else{
                     this.$toastr.i("Column Already Exists");                
                 }
 
+
+                if (this.formula.columnOne !== '')
+                    this.evalStructured()
+                else
+                    this.evalUnstructured()
+
+            },
+            evalStructured: function(){
                 this.bodyData.forEach(row => {
                     const op1 = (row[this.formula.columnOne]== Number(row[this.formula.columnOne]))?row[this.formula.columnOne]:0
                     const op2 = (row[this.formula.columnTwo]== Number(row[this.formula.columnTwo]))?row[this.formula.columnTwo]:0
-                    row[this.newColumn] = eval(`${op1} ${this.formula.operator} ${op2}`)
+                    row[this.newColumn.toLowerCase()] = eval(`${op1} ${this.formula.operator} ${op2}`)
                 })    
                 //console.log(this.bodyData)
-
+            },
+            evalUnstructured: function(){
+                const statementArray = [].concat.apply([], this.formula.unStructured.split('"').map(function(v,i){
+                   return i%2 ? v : v.split(' ')
+                })).filter(Boolean);            
+                //https://stackoverflow.com/questions/18703669/split-string-but-not-words-inside-quotation-marks
+               
+                this.bodyData.forEach(row => {
+                    let statementToEval = ``
+                    statementArray.forEach(element => {
+                       
+                        if (element === '&'){
+                            //console.log(`${element} is a space`)
+                            statementToEval += ""
+                        }else if (this.operators.includes(element)){
+                            //console.log(`${element} is an operator`)
+                            statementToEval += element
+                        }else if (this.headerData.includes(element)){
+                            //console.log(`${element} is a column`)
+                            statementToEval += `${row[element]}`
+                        }else{
+                            //console.log(`${element} is a literal`)
+                            statementToEval += `${element}`
+                        }
+                    })                
+                    row[this.newColumn.toLowerCase()] = statementToEval
+                })
+            },
+            clearForm: function(){
+                this.formula = {
+                    columnOne: '',
+                    columnTwo: '',
+                    operator: '',
+                    unStructured:''
+                }
+                this.newColumn = ''
             },
             sort:function(s) {
                 //toggle search
@@ -231,5 +308,6 @@
     #operator option{
         font-size: 24px;
     }
+    
 
 </style>

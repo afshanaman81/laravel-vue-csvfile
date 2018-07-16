@@ -72,6 +72,10 @@
                 padding: 3vh;
                 border: 1px solid;
             }
+            h3{
+                color: grey;
+                font-weight: bold;
+            }
         </style>
     </head>
     <body>
@@ -105,7 +109,7 @@
                 <div class="file-upload">
                     <form action="file" method="POST" enctype="multipart/form-data">
                         {{ csrf_field() }}
-                        File:
+                        <h3>File Upload</h3>
                         <br />
                         <input type="file" name="myFile" />
                         <br /><br />
@@ -115,7 +119,8 @@
 
                 <div id="app" >
                     @if(!empty($csv_data))                    
-                    <div class="vue-component">                       
+                    <div class="vue-component">  
+                        <h3>CSV Data Table</h3>                     
                         <data-table v-bind:data="{{ json_encode($csv_data)}}"/>                              
                     </div>
                     @endif
