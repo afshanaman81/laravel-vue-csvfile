@@ -17,16 +17,16 @@
                 color: #636b6f;
                 font-family: 'Raleway', sans-serif;
                 font-weight: 100;
-                height: 100vh;
-                margin: 0;
+                height: 100vh;   
+                width: 60vw;             
+                margin: 0 auto;
             }
 
             .full-height {
-                height: 100vh;
+                height: 100vh;                            
             }
 
-            .flex-center {
-                /*align-items: center;*/
+            .flex-center {                            
                 display: flex;
                 justify-content: center;
             }
@@ -43,10 +43,11 @@
 
             .content {
                 text-align: center;
+                width: 100%;
             }
 
             .title {
-                font-size: 84px;
+                font-size: 64px;
             }
 
             .links > a {
@@ -63,7 +64,7 @@
                 margin-bottom: 30px;
             }
             .uniform-width{
-                width: 12vw;
+                width: 11vw;
             }
             .vue-component,
             .csv-table,
@@ -95,7 +96,9 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    RedCAT Test with Laravel & Vue
+                    RedCAT Demo
+                    <br />
+                    <h4>(App Built with Laravel & Vue)</h4>
                 </div>
 
                 <div class="links">
