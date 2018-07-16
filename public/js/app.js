@@ -44349,7 +44349,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     props: ['data'],
     data: function data() {
         return {
-            pageSize: 5,
+            pageSize: this.data.length - 3, // just to demonstrate the pagination feature
             currentSort: 'name',
             currentSortDir: 'asc',
             pageInfo: '',
@@ -44358,17 +44358,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             bodyData: [],
             NumericColumns: [],
             operators: ['+', '*', '-', '/'],
-            newColumn: 'Ss',
+            newColumn: '',
             formula: {
                 columnOne: '',
                 columnTwo: '',
                 operator: '',
-                unStructured: 'product & " sales in " & city & " were " & sales'
-            }
+                unStructured: ''
+            },
+            validEvaluation: false
         };
     },
     mounted: function mounted() {
-        console.log('Component mounted.');
         this.parseData();
         this.getNumericColumns();
         this.getPageInfo();
@@ -44413,54 +44413,86 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             // error handling
             // 1. Column Name Check            
             if (this.newColumn === '') {
+                this.validEvaluation = false;
                 this.$toastr.e("Must provide name for new column");
                 return;
             }
-            // 2. Column Duplicate Name Check
-            if (!this.headerData.includes(this.newColumn)) this.headerData.push(this.newColumn.toLowerCase());else {
+
+            // 2. Column Duplicate Name Check                
+            if (this.headerData.includes(this.newColumn.toLowerCase())) {
                 this.$toastr.i("Column Already Exists");
+                this.validEvaluation = false;
+                return;
             }
 
-            if (this.formula.columnOne !== '') this.evalStructured();else this.evalUnstructured();
+            // Evaluate the formula
+            if (this.formula.columnOne !== '') {
+                this.validEvaluation = this.evalStructured();
+            } else {
+                this.validEvaluation = this.evalUnstructured();
+            }
+
+            // Add the column to table                
+            if (!this.validEvaluation) {
+                this.$toastr.e("Column is Invalid");
+                return;
+            } else {
+                if (!this.headerData.includes(this.newColumn)) this.headerData.push(this.newColumn.toLowerCase());else {
+                    this.$toastr.i("Column Already Exists");
+                }
+            }
         },
         evalStructured: function evalStructured() {
             var _this3 = this;
 
             this.bodyData.forEach(function (row) {
-                var op1 = row[_this3.formula.columnOne] == Number(row[_this3.formula.columnOne]) ? row[_this3.formula.columnOne] : 0;
-                var op2 = row[_this3.formula.columnTwo] == Number(row[_this3.formula.columnTwo]) ? row[_this3.formula.columnTwo] : 0;
-                row[_this3.newColumn.toLowerCase()] = eval(op1 + ' ' + _this3.formula.operator + ' ' + op2);
+                try {
+                    row[_this3.newColumn.toLowerCase()] = eval(row[_this3.formula.columnOne] + ' ' + _this3.formula.operator + ' ' + row[_this3.formula.columnTwo]);
+                } catch (e) {
+                    row[_this3.newColumn.toLowerCase()] = 'N/A';
+                }
             });
             //console.log(this.bodyData)
+            return true;
         },
         evalUnstructured: function evalUnstructured() {
             var _this4 = this;
 
+            //help: https://stackoverflow.com/questions/18703669/split-string-but-not-words-inside-quotation-marks                        
             var statementArray = [].concat.apply([], this.formula.unStructured.split('"').map(function (v, i) {
-                return i % 2 ? v : v.split(' ');
+                return i % 2 ? '"' + v + '"' : v.split(' ');
             })).filter(Boolean);
-            //https://stackoverflow.com/questions/18703669/split-string-but-not-words-inside-quotation-marks
 
+            var validEval = true;
             this.bodyData.forEach(function (row) {
                 var statementToEval = '';
                 statementArray.forEach(function (element) {
-
+                    //console.log(element)
                     if (element === '&') {
                         //console.log(`${element} is a space`)
-                        statementToEval += "";
+                        statementToEval += " ";
                     } else if (_this4.operators.includes(element)) {
                         //console.log(`${element} is an operator`)
                         statementToEval += element;
-                    } else if (_this4.headerData.includes(element)) {
-                        //console.log(`${element} is a column`)
-                        statementToEval += '' + row[element];
-                    } else {
+                    } else if (element.includes('"')) {
                         //console.log(`${element} is a literal`)
+                        element = element.replace(/"/g, "");
                         statementToEval += '' + element;
+                    } else {
+                        if (_this4.headerData.includes(element)) {
+                            //console.log(`${element} is a column`)
+                            statementToEval += '' + row[element];
+                        } else {
+                            //console.log(`${element} is invalid column`)                            
+                            validEval = false;
+                        }
                     }
                 });
-                row[_this4.newColumn.toLowerCase()] = statementToEval;
+
+                if (validEval) row[_this4.newColumn.toLowerCase()] = statementToEval;
             });
+
+            return validEval;
         },
         clearForm: function clearForm() {
             this.formula = {

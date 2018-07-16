@@ -115,7 +115,7 @@
         props:['data'],
         data(){
             return {
-                pageSize: 5,
+                pageSize: this.data.length - 3, // just to demonstrate the pagination feature
                 currentSort:'name',
                 currentSortDir:'asc',
                 pageInfo: '',
@@ -124,17 +124,17 @@
                 bodyData:[],
                 NumericColumns:[],
                 operators: ['+', '*', '-', '/'],
-                newColumn: 'Ss',
+                newColumn: '',
                 formula: {
                     columnOne: '',
                     columnTwo: '',
                     operator: '',
-                    unStructured:'product & " sales in " & city & " were " & sales'
+                    unStructured:'' 
                 },
+                validEvaluation: false
             }
         },
-        mounted() {
-            console.log('Component mounted.')
+        mounted() {            
             this.parseData()   
             this.getNumericColumns()     
             this.getPageInfo()
@@ -170,61 +170,92 @@
                 })
                 //console.log(this.NumericColumns)
             },
-            addNewColumn: function(){
+            addNewColumn: function(){              
                 // error handling
                 // 1. Column Name Check            
                 if (this.newColumn === ''){
+                    this.validEvaluation = false
                     this.$toastr.e("Must provide name for new column"); 
                     return
                 }
-                // 2. Column Duplicate Name Check
-                if (!this.headerData.includes(this.newColumn))
-                    this.headerData.push(this.newColumn.toLowerCase())
+                
+                // 2. Column Duplicate Name Check                
+                if (this.headerData.includes(this.newColumn.toLowerCase())){                    
+                    this.$toastr.i("Column Already Exists"); 
+                    this.validEvaluation = false
+                    return
+                }
+            
+                // Evaluate the formula
+                if (this.formula.columnOne !== ''){                   
+                    this.validEvaluation = this.evalStructured()
+                }
                 else{
-                    this.$toastr.i("Column Already Exists");                
+                    this.validEvaluation = this.evalUnstructured()
                 }
 
 
-                if (this.formula.columnOne !== '')
-                    this.evalStructured()
-                else
-                    this.evalUnstructured()
+                // Add the column to table                
+                if (!this.validEvaluation){
+                    this.$toastr.e("Column is Invalid")
+                    return
+                }else{                    
+                    if (!this.headerData.includes(this.newColumn))
+                        this.headerData.push(this.newColumn.toLowerCase())
+                    else{
+                        this.$toastr.i("Column Already Exists");                
+                    }
+                }
 
             },
             evalStructured: function(){
-                this.bodyData.forEach(row => {
-                    const op1 = (row[this.formula.columnOne]== Number(row[this.formula.columnOne]))?row[this.formula.columnOne]:0
-                    const op2 = (row[this.formula.columnTwo]== Number(row[this.formula.columnTwo]))?row[this.formula.columnTwo]:0
-                    row[this.newColumn.toLowerCase()] = eval(`${op1} ${this.formula.operator} ${op2}`)
+                this.bodyData.forEach(row => {        
+                    try{
+                        row[this.newColumn.toLowerCase()] = eval(`${row[this.formula.columnOne]} ${this.formula.operator} ${row[this.formula.columnTwo]}`)
+                    }catch (e) {            
+                        row[this.newColumn.toLowerCase()] = 'N/A'
+                    }                
                 })    
                 //console.log(this.bodyData)
+                return true
             },
             evalUnstructured: function(){
+                //help: https://stackoverflow.com/questions/18703669/split-string-but-not-words-inside-quotation-marks                        
                 const statementArray = [].concat.apply([], this.formula.unStructured.split('"').map(function(v,i){
-                   return i%2 ? v : v.split(' ')
-                })).filter(Boolean);            
-                //https://stackoverflow.com/questions/18703669/split-string-but-not-words-inside-quotation-marks
-               
+                   return i%2 ? '"'+v+'"' : v.split(' ')
+                })).filter(Boolean);                               
+
+                let validEval = true
                 this.bodyData.forEach(row => {
                     let statementToEval = ``
                     statementArray.forEach(element => {
-                       
+                        //console.log(element)
                         if (element === '&'){
                             //console.log(`${element} is a space`)
-                            statementToEval += ""
+                            statementToEval += " "
                         }else if (this.operators.includes(element)){
                             //console.log(`${element} is an operator`)
                             statementToEval += element
-                        }else if (this.headerData.includes(element)){
-                            //console.log(`${element} is a column`)
-                            statementToEval += `${row[element]}`
-                        }else{
+                        }else if (element.includes('"')) {
                             //console.log(`${element} is a literal`)
+                            element = element.replace(/"/g, "")
                             statementToEval += `${element}`
-                        }
-                    })                
-                    row[this.newColumn.toLowerCase()] = statementToEval
+                        }else{
+                            if (this.headerData.includes(element)){
+                                //console.log(`${element} is a column`)
+                                statementToEval += `${row[element]}`
+                            }else{
+                                //console.log(`${element} is invalid column`)                            
+                                validEval = false
+                            }
+                        } 
+                    })
+                    
+                    if (validEval)               
+                        row[this.newColumn.toLowerCase()] = statementToEval
                 })
+
+                return validEval
             },
             clearForm: function(){
                 this.formula = {

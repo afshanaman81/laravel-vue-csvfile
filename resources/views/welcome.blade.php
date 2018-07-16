@@ -95,7 +95,7 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    Laravel
+                    RedCAT Test with Laravel & Vue
                 </div>
 
                 <div class="links">
