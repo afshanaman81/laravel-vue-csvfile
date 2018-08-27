@@ -96,7 +96,7 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    RedCAT Demo
+                    File Upload Demo
                     <br />
                     <h4>(App Built with Laravel & Vue)</h4>
                 </div>
