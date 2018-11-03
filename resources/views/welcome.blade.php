@@ -14,7 +14,7 @@
         <style>
             html, body {
                 background-color: #fff;
-                color: #636b6f;
+                color: black; /*#636b6f*/
                 font-family: 'Raleway', sans-serif;
                 font-weight: 100;
                 height: 100vh;   
@@ -117,14 +117,15 @@
                         <input type="file" name="myFile" />
                         <br /><br />
                         <button class="btn btn-info btn-sm uniform-width">Upload</button>
+                        <br>
                         <p>The application expects a CSV file which is parsed and represented as a data table.
                         Here is a sample data which you can copy/paste in to a CSV file and upload to see the app in action</p>
                         <p>
-                        City,product,units,price
-                        San Diego,apple,2,5
-                        Austin,apple,5,5
-                        Seattle,apple,6,5
-                        Portland,orange,none,10
+                        City,product,units,price    <br>
+                        San Diego,apple,2,5         <br>    
+                        Austin,apple,5,5            <br>
+                        Seattle,apple,6,5           <br>
+                        Portland,orange,none,10     <br>
                         New York,orange,8,10
                         </p>
                     </form>
