@@ -46,7 +46,8 @@
                 width: 100%;               
             }
             .description{
-                color: #000 !important;
+                color: #000;
+                font-weight: bold;
             }
 
             .title {
@@ -122,10 +123,11 @@
                         <button class="btn btn-info btn-sm uniform-width">Upload</button>                        
                     </form>
                     <div class="description">
-                        <h4>Note</h4>                        
-                        <p>
+                        <p class="text-left">Note</p>                       
+                        <p class="text-left">
                         The application expects a CSV file which is parsed and represented as a data table.
-                        Here is a sample data which you can copy/paste in to a CSV file and upload to see the app in action</p>
+                        Here is a sample data which you can copy/paste in to a CSV file and upload to see the app in action
+                        </p>
                         <p class="text-left">
                             City,product,units,price    <br>
                             San Diego,apple,2,5         <br>    
