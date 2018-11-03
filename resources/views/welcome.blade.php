@@ -117,6 +117,16 @@
                         <input type="file" name="myFile" />
                         <br /><br />
                         <button class="btn btn-info btn-sm uniform-width">Upload</button>
+                        <p>The application expects a CSV file which is parsed and represented as a data table.
+                        Here is a sample data which you can copy/paste in to a CSV file and upload to see the app in action</p>
+                        <p>
+                        City,product,units,price
+                        San Diego,apple,2,5
+                        Austin,apple,5,5
+                        Seattle,apple,6,5
+                        Portland,orange,none,10
+                        New York,orange,8,10
+                        </p>
                     </form>
                 </div>
 
