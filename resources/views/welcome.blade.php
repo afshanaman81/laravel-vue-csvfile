@@ -48,6 +48,7 @@
             .description{
                 color: #000;
                 font-weight: bold;
+                font-size: smaller;
             }
 
             .title {
@@ -122,6 +123,7 @@
                         <br /><br />
                         <button class="btn btn-info btn-sm uniform-width">Upload</button>                        
                     </form>
+                    <hr>
                     <div class="description">
                         <p class="text-left">Note</p>                       
                         <p class="text-left">
