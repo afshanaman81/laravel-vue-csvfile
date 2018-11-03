@@ -43,8 +43,10 @@
 
             .content {
                 text-align: center;
-                width: 100%;
-                color: #000;
+                width: 100%;               
+            }
+            .description{
+                color: #000 !important;
             }
 
             .title {
@@ -117,22 +119,22 @@
                         <br />
                         <input type="file" name="myFile" />
                         <br /><br />
-                        <button class="btn btn-info btn-sm uniform-width">Upload</button>
-                        <br />
-                        Note
-                        <br />
+                        <button class="btn btn-info btn-sm uniform-width">Upload</button>                        
+                    </form>
+                    <div class="description">
+                        <h4>Note</h4>                        
                         <p>
                         The application expects a CSV file which is parsed and represented as a data table.
                         Here is a sample data which you can copy/paste in to a CSV file and upload to see the app in action</p>
                         <p class="text-left">
-                        City,product,units,price    <br>
-                        San Diego,apple,2,5         <br>    
-                        Austin,apple,5,5            <br>
-                        Seattle,apple,6,5           <br>
-                        Portland,orange,none,10     <br>
-                        New York,orange,8,10
-                        </p>
-                    </form>
+                            City,product,units,price    <br>
+                            San Diego,apple,2,5         <br>    
+                            Austin,apple,5,5            <br>
+                            Seattle,apple,6,5           <br>
+                            Portland,orange,none,10     <br>
+                            New York,orange,8,10
+                        </p>                    
+                    </div>
                 </div>
 
                 <div id="app" >
