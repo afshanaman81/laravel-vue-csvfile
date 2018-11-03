@@ -128,7 +128,7 @@
                         <p class="text-left">Note</p>                       
                         <p class="text-left">
                         The application expects a CSV file which is parsed and represented as a data table.
-                        Here is a sample data which you can copy/paste in to a CSV file and upload to see the app in action
+                        Here is some sample data which you can copy/paste in a CSV file and upload to see the app in action.
                         </p>
                         <p class="text-left">
                             City,product,units,price    <br>
